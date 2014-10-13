@@ -1,85 +1,111 @@
-#!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
-
-require 'dry_option_parser'
-require 'ostruct'
+require 'optparse'
 require 'optparse/time'
-include DryOptionParser
+require 'ostruct'
+require 'pp'
 
-options = OpenStruct.new
-options.library = []
-options.inplace = false
-options.encoding = "utf8"
-options.transfer_type = :auto
-options.verbose = false
+class OptparseExample
 
-opt_parser = cli_options(options)  do
-  codes = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
-  code_aliases = { "jis" => "iso-2022-jp", "sjis" => "shift_jis" }
+  CODES = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
+  CODE_ALIASES = { "jis" => "iso-2022-jp", "sjis" => "shift_jis" }
 
-  self.banner = "Usage: example.rb [@options]"
+  #
+  # Return a structure describing the options.
+  #
+  def self.parse(args)
+    # The options specified on the command line will be collected in *options*.
+    # We set default values here.
+    options = OpenStruct.new
+    options.library = []
+    options.inplace = false
+    options.encoding = "utf8"
+    options.transfer_type = :auto
+    options.verbose = false
 
-  separator ""
-  separator "Specific @options:"
+    opt_parser = OptionParser.new do |opts|
+      opts.banner = "Usage: example.rb [options]"
 
-  # Mandatory argument.
-  assign("library", "-r", "--require LIBRARY",
-         "Require the LIBRARY before executing your script") do |lib|
-    @options.library << lib
-  end
+      opts.separator ""
+      opts.separator "Specific options:"
 
-  # Optional argument; multi-line description.
-  on("-i", "--inplace [EXTENSION]",
-     "Edit ARGV files in place",
-     "  (make backup if EXTENSION supplied)") do |ext|
-       @options.inplace = true
-       @options.extension = ext || ''
-       @options.extension.sub!(/\A\.?(?=.)/, ".")  # Ensure extension begins with dot.
-     end
+      # Mandatory argument.
+      opts.on("-r", "--require LIBRARY",
+              "Require the LIBRARY before executing your script") do |lib|
+        options.library << lib
+      end
 
-     # Cast 'delay' argument to a Float.
-     assign("delay", "--delay N", Float, "Delay N seconds before executing")
-     # Cast 'time' argument to a Time object.
-     assign("time", "-t", "--time [TIME]", Time, "Begin execution at given time")
+      # Optional argument; multi-line description.
+      opts.on("-i", "--inplace [EXTENSION]",
+              "Edit ARGV files in place",
+              "  (make backup if EXTENSION supplied)") do |ext|
+        options.inplace = true
+        options.extension = ext || ''
+        options.extension.sub!(/\A\.?(?=.)/, ".")  # Ensure extension begins with dot.
+      end
 
-     # Cast to octal integer.
-     assign("record_separator","-F", "--irs [OCTAL]", OptionParser::OctalInteger,
-            "Specify record separator (default \\0)")
+      # Cast 'delay' argument to a Float.
+      opts.on("--delay N", Float, "Delay N seconds before executing") do |n|
+        options.delay = n
+      end
 
-     # List of arguments.
-     assign("list","--list x,y,z", Array, "Example 'list' of arguments")
+      # Cast 'time' argument to a Time object.
+      opts.on("-t", "--time [TIME]", Time, "Begin execution at given time") do |time|
+        options.time = time
+      end
 
-     # Keyword completion.  We are specifying a specific set of arguments (codes
-     # and code_aliases - notice the latter is a Hash), and the user may provide
-     # the shortest unambiguous text.
-     code_list = (code_aliases.keys + codes).join(',')
-     assign("encoding","--code CODE", codes, code_aliases, "Select encoding",
-            "  (#{code_list})")
+      # Cast to octal integer.
+      opts.on("-F", "--irs [OCTAL]", OptionParser::OctalInteger,
+              "Specify record separator (default \\0)") do |rs|
+        options.record_separator = rs
+      end
 
-     # Optional argument with keyword completion.
-     on("--type [TYPE]", [:text, :binary, :auto],
-        "Select transfer type (text, binary, auto)","transfer_type")
+      # List of arguments.
+      opts.on("--list x,y,z", Array, "Example 'list' of arguments") do |list|
+        options.list = list
+      end
 
-     # Boolean switch.
-     on("-v", "--[no-]verbose", "Run verbosely", "verbose")
+      # Keyword completion.  We are specifying a specific set of arguments (CODES
+      # and CODE_ALIASES - notice the latter is a Hash), and the user may provide
+      # the shortest unambiguous text.
+      code_list = (CODE_ALIASES.keys + CODES).join(',')
+      opts.on("--code CODE", CODES, CODE_ALIASES, "Select encoding",
+              "  (#{code_list})") do |encoding|
+        options.encoding = encoding
+      end
 
-     separator ""
-     separator "Common @options:"
+      # Optional argument with keyword completion.
+      opts.on("--type [TYPE]", [:text, :binary, :auto],
+              "Select transfer type (text, binary, auto)") do |t|
+        options.transfer_type = t
+      end
 
-     # No argument, shows at tail.  This will print an @options summary.
-     # Try it and see!
-     on_tail("-h", "--help", "Show this message") do
-       puts opts
-       exit
-     end
+      # Boolean switch.
+      opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+        options.verbose = v
+      end
 
-     # Another typical switch to print the version.
-     on_tail("--version", "Show version") do
-       puts ::Version.join('.')
-       exit
-     end
-end
+      opts.separator ""
+      opts.separator "Common options:"
 
-opt_parser.parse!(ARGV)
-options = opt_parser.options
+      # No argument, shows at tail.  This will print an options summary.
+      # Try it and see!
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        exit
+      end
 
+      # Another typical switch to print the version.
+      opts.on_tail("--version", "Show version") do
+        puts ::Version.join('.')
+        exit
+      end
+    end
+
+    opt_parser.parse!(args)
+    options
+  end  # parse()
+
+end  # class OptparseExample
+
+options = OptparseExample.parse(ARGV)
+pp options
+pp ARGV
