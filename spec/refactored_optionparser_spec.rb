@@ -16,6 +16,7 @@ describe "DryOptionParser--the long OptionParser example" do
     @options.verbose = false
   end
 
+  # Refactor the long optionparser example using DryOptionParser
   subject do
     @opt_parser = cli_options(@options) do
       codes = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
@@ -84,14 +85,16 @@ describe "DryOptionParser--the long OptionParser example" do
          end
     end
   end
+  #End of refactored long example
 
+  #Some tests
   it "should successfully evaluate the full example" do
     should_not be_nil
   end
 
   context "parsing with various args" do
     it "should return default options if no args given" do
-      subject.parse!()
+      subject.parse!([])
       expect(subject.options.each_pair.all? {|k,v| @options[k]==v}).to be_truthy
     end
 

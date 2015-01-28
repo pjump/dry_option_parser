@@ -15,12 +15,6 @@ module DryOptionParser
       end
     end
     it {should respond_to(:options) }
-
-    context "OptionParser full example" do
-      before do
-
-      end
-
-    end
+    it {should respond_to(:assign) }
   end
 end
