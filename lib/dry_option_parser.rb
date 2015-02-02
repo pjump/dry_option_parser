@@ -10,9 +10,9 @@ module DryOptionParser
   class DryOptionParser < SimpleDelegator
 
     def initialize(options={},&blk)
+      @options = options
       super(OptionParser.new)
       instance_eval &blk
-      @options = options
     end
 
     def assign(*args)

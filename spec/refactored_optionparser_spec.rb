@@ -22,24 +22,24 @@ describe "DryOptionParser--the long OptionParser example" do
       codes = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
       code_aliases = { "jis" => "iso-2022-jp", "sjis" => "shift_jis" }
 
-      self.banner = "Usage: example.rb [@options]"
+      self.banner = "Usage: example.rb [options]"
 
       separator ""
-      separator "Specific @options:"
+      separator "Specific options:"
 
       # Mandatory argument.
-      assign("library", "-r", "--require LIBRARY",
+      on( "-r", "--require LIBRARY",
          "Require the LIBRARY before executing your script") do |lib|
-        @options.library << lib
+        options.library << lib
       end
 
       # Optional argument; multi-line description.
       on("-i", "--inplace [EXTENSION]",
          "Edit ARGV files in place",
          "  (make backup if EXTENSION supplied)") do |ext|
-           @options.inplace = true
-           @options.extension = ext || ''
-           @options.extension.sub!(/\A\.?(?=.)/, ".")  # Ensure extension begins with dot.
+           options.inplace = true
+           options.extension = ext || ''
+           options.extension.sub!(/\A\.?(?=.)/, ".")  # Ensure extension begins with dot.
          end
 
          # Cast 'delay' argument to a Float.
@@ -69,9 +69,9 @@ describe "DryOptionParser--the long OptionParser example" do
          on("-v", "--[no-]verbose", "Run verbosely", "verbose")
 
          separator ""
-         separator "Common @options:"
+         separator "Common options:"
 
-         # No argument, shows at tail.  This will print an @options summary.
+         # No argument, shows at tail.  This will print an options summary.
          # Try it and see!
          on_tail("-h", "--help", "Show this message") do
            puts opts
@@ -100,6 +100,8 @@ describe "DryOptionParser--the long OptionParser example" do
 
     it "-r something should add library" do
       subject.parse!(%w[-r foo])
+      library = subject.options[:library]
+      expect(library).to be_an(Array)
       expect(subject.options[:library]).to include("foo")
     end
     it "--delay 7 should assign a delay of 7.0" do
