@@ -74,7 +74,7 @@ describe "DryOptionParser--the long OptionParser example" do
          # No argument, shows at tail.  This will print an options summary.
          # Try it and see!
          on_tail("-h", "--help", "Show this message") do
-           puts opts
+           puts self
            exit
          end
 
