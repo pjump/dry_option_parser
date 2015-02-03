@@ -17,7 +17,7 @@ module DryOptionParser
 
     def assign(*args)
       attribute = args.shift
-      on(*args) {|val| @options[attribute]=val}
+      on(*args) {|val| @options[attribute.to_sym]=val}
     end
 
     attr_accessor :options
