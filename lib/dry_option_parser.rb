@@ -9,10 +9,12 @@ require 'delegate'
 module DryOptionParser
   class DryOptionParser < SimpleDelegator
 
+    attr_accessor :options
+
     def initialize(options={},&blk)
       @options = options
       super(OptionParser.new)
-      instance_eval &blk
+      instance_eval(&blk)
     end
 
     def assign(*args)
@@ -20,11 +22,5 @@ module DryOptionParser
       on(*args) {|val| @options[attribute.to_sym]=val}
     end
 
-    attr_accessor :options
-    #
   end  # class OptparseExample
-
-  def cli_options(options={},&blk)
-    DryOptionParser.new(options,&blk)
-  end
 end
