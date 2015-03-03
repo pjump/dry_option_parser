@@ -3,7 +3,7 @@
 
 require 'dry_option_parser'
 require 'ostruct'
-require 'optparse/time'
+require 'dry_option_parser/time'
 
 module DryOptionParser
   describe "DryOptionParser--the long OptionParser example" do
